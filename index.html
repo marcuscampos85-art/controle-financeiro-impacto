@@ -1287,8 +1287,9 @@ function renderNotas(){
       </td>
     </tr>`;
   }).join('');
+    const todosVisiveisMarcados = idsVisiveis.size>0 && Array.from(idsVisiveis).every(id=>notasSelecionadas.has(id));
   el.innerHTML = `<table>
-    <thead><tr><th class="checkcol"></th><th>Emissão</th><th>Documento</th><th>Emitente</th><th>Destinatário</th><th style="text-align:right">Valor</th><th>Direção</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th class="checkcol"><input type="checkbox" ${todosVisiveisMarcados?'checked':''} ${idsVisiveis.size===0?'disabled':''} onchange="toggleSelecionarVisiveisNotas(this.checked)" title="Selecionar todas as notas pendentes desta lista"></th><th>Emissão</th><th>Documento</th><th>Emitente</th><th>Destinatário</th><th style="text-align:right">Valor</th><th>Direção</th><th>Status</th><th></th></tr></thead>
     <tbody>${rows}</tbody>
   </table>`;
 }
@@ -1301,7 +1302,21 @@ function selecionarTodasPendentesNotas(){
   state.notasFiscais.filter(n=>n.status==='pendente').forEach(n=>notasSelecionadas.add(n.id));
   renderNotas();
 }
-function limparSelecaoNotas(){
+function toggleSelecionarVisiveisNotas(checked){
+    const busca = document.getElementById('buscaNotas').value.toLowerCase();
+    const fStatus = document.getElementById('filtroStatusNotas').value;
+    const fDirecao = document.getElementById('filtroDirecaoNotas').value;
+    const visiveis = state.notasFiscais.filter(n=>{
+          if(n.status!=='pendente') return false;
+          if(fStatus && n.status!==fStatus) return false;
+          if(fDirecao && (n.direcao||'indefinida')!==fDirecao) return false;
+          if(busca && !((n.numero||'')+' '+(n.emitenteNome||'')+' '+(n.destinatarioNome||'')+' '+(n.chave||'')).toLowerCase().includes(busca)) return false;
+          return true;
+    });
+    visiveis.forEach(n=> checked ? notasSelecionadas.add(n.id) : notasSelecionadas.delete(n.id));
+    renderNotas();
+}
+  function limparSelecaoNotas(){
   notasSelecionadas.clear();
   renderNotas();
 }
