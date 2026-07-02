@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle Financeiro — Impacto Consultoria</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root{
+  --ink:#14233D;
+  --ink-soft:#1F3354;
+  --ink-softer:#2A4066;
+  --paper:#EEF1ED;
+  --card:#FFFFFF;
+  --line:#D2D6CE;
+  --line-soft:#E3E6DF;
+  --text:#1B2330;
+  --text-soft:#5B6472;
+  --text-faint:#8B92A0;
+  --receita:#146B4B;
+  --receita-bg:#E3EFE7;
+  --despesa:#8C3A2B;
+  --despesa-bg:#F3E6E1;
+  --warn:#B7791F;
+  --warn-bg:#FBEFD9;
+  --accent:#2E6F8E;
+  --accent-bg:#E2EDF1;
+  --font-ui:'Inter',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:var(--font-ui);
+  background:var(--paper);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.5;
+}
+.app{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{
+  width:236px;
+  flex-shrink:0;
+  background:var(--ink);
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  padding:28px 0;
+}
+.brand{
+  padding:0 24px 24px 24px;
+  border-bottom:1px solid rgba(255,255,255,0.12);
+  margin-bottom:18px;
+}
+.brand-eyebrow{
+  font-size:10.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#8FA3C4;
+  font-weight:600;
+  margin-bottom:4px;
+}
+.brand-name{
+  font-size:18px;
+  font-weight:700;
+  letter-spacing:-0.01em;
+}
+nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;}
+.navlink{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:6px;
+  color:#C3CEE0;
+  text-decoration:none;
+  font-size:13.5px;
+  font-weight:500;
+  cursor:pointer;
+  border:none;
+  background:none;
+  text-align:left;
+  width:100%;
+  font-family:var(--font-ui);
+}
+.navlink:hover{background:rgba(255,255,255,0.06);color:#fff;}
+.navlink.active{background:var(--ink-softer);color:#fff;}
+.navlink .dot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:0.5;flex-shrink:0;}
+.sidebar-foot{
+  margin-top:auto;
+  padding:18px 24px 0 24px;
+  border-top:1px solid rgba(255,255,255,0.12);
+  font-size:11.5px;
+  color:#7C8AA3;
+  line-height:1.6;
+}
+
+/* MAIN */
+main{flex:1;padding:32px 40px 64px 40px;max-width:1180px;}
+.page{display:none;}
+.page.active{display:block;animation:fadein .25s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.page-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-bottom:24px;
+  flex-wrap:wrap;
+  gap:12px;
+}
+.page-title{font-size:22px;font-weight:700;letter-spacing:-0.01em;color:var(--ink);}
+.page-sub{font-size:13px;color:var(--text-soft);margin-top:3px;}
+
+.btn{
+  font-family:var(--font-ui);
+  font-size:13px;
+  font-weight:600;
+  padding:9px 16px;
+  border-radius:6px;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--text);
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.btn:hover{border-color:var(--text-faint);}
+.btn-primary{background:var(--ink);color:#fff;border-color:var(--ink);}
+.btn-primary:hover{background:var(--ink-soft);}
+.btn-receita{background:var(--receita);color:#fff;border-color:var(--receita);}
+.btn-despesa{background:var(--despesa);color:#fff;border-color:var(--despesa);}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn-ghost{background:none;border-color:transparent;color:var(--text-soft);}
+.btn-ghost:hover{background:var(--line-soft);}
+
+/* CARDS / KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kpi{
+  background:var(--card);
+  border:1px solid var(--line-soft);
+  border-radius:10px;
+  padding:18px 20px;
+}
+.kpi-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);font-weight:600;margin-bottom:8px;}
+.kpi-value{font-family:var(--font-mono);font-size:24px;font-weight:700;color:var(--ink);}
+.kpi-value.receita{color:var(--receita);}
+.kpi-value.despesa{color:var(--despesa);}
+.kpi-foot{font-size:11.5px;color:var(--text-soft);margin-top:6px;}
+
+.hero{
+  background:var(--card);
+  border:1px solid var(--line-soft);
+  border-radius:12px;
+  padding:28px 30px;
+  margin-bottom:24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:20px;
+}
+.hero-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);font-weight:700;margin-bottom:10px;}
+.hero-value{
+  font-family:var(--font-mono);
+  font-size:42px;
+  font-weight:700;
+  color:var(--ink);
+  border-bottom:3px double var(--ink);
+  padding-bottom:8px;
+  display:inline-block;
+}
+.hero-value.neg{color:var(--despesa);border-color:var(--despesa);}
+.hero-note{font-size:12.5px;color:var(--text-soft);margin-top:10px;max-width:340px;}
+.hero-mini{display:flex;gap:28px;}
+.hero-mini-item{text-align:right;}
+.hero-mini-label{font-size:11px;color:var(--text-faint);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.hero-mini-value{font-family:var(--font-mono);font-size:17px;font-weight:600;}
+
+.grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:24px;}
+.panel{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;padding:22px 24px;}
+.panel-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.panel-sub{font-size:12px;color:var(--text-soft);margin-bottom:18px;}
+
+/* Bar chart (fluxo de caixa) */
+.barchart{display:flex;align-items:flex-end;gap:14px;height:160px;padding-top:10px;border-bottom:1px solid var(--line);}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end;gap:3px;}
+.bar-pair{display:flex;align-items:flex-end;gap:3px;height:100%;width:100%;justify-content:center;}
+.bar{width:14px;border-radius:3px 3px 0 0;min-height:2px;}
+.bar.r{background:var(--receita);}
+.bar.d{background:var(--despesa);}
+.bar-month{font-size:10.5px;color:var(--text-faint);margin-top:8px;font-weight:600;text-transform:uppercase;}
+.chart-legend{display:flex;gap:18px;margin-top:14px;font-size:11.5px;color:var(--text-soft);}
+.legend-dot{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px;}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:22px;}
+.donut{width:140px;height:140px;border-radius:50%;flex-shrink:0;}
+.donut-legend{flex:1;display:flex;flex-direction:column;gap:8px;}
+.donut-item{display:flex;align-items:center;justify-content:space-between;font-size:12.5px;}
+.donut-item-name{display:flex;align-items:center;gap:7px;color:var(--text);}
+.donut-swatch{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+.donut-item-val{font-family:var(--font-mono);font-weight:600;color:var(--text-soft);}
+
+/* TABLE */
+.table-tools{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
+.input,.select{
+  font-family:var(--font-ui);
+  font-size:13px;
+  padding:8px 11px;
+  border:1px solid var(--line);
+  border-radius:6px;
+  background:var(--card);
+  color:var(--text);
+}
+.input:focus,.select:focus{outline:none;border-color:var(--accent);}
+.search-input{flex:1;min-width:180px;}
+
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line-soft);border-radius:10px;overflow:hidden;}
+thead th{
+  text-align:left;
+  font-size:10.5px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:var(--text-faint);
+  font-weight:700;
+  padding:11px 16px;
+  border-bottom:2px solid var(--line);
+  background:#FAFAF8;
+}
+tbody td{padding:12px 16px;border-bottom:1px solid var(--line-soft);font-size:13px;vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#FAFAF8;}
+td.num{font-family:var(--font-mono);font-weight:600;text-align:right;}
+td.num.receita{color:var(--receita);}
+td.num.despesa{color:var(--despesa);}
+.row-actions{display:flex;gap:6px;justify-content:flex-end;}
+.icon-btn{
+  width:26px;height:26px;border-radius:5px;border:1px solid var(--line);background:var(--card);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-soft);font-size:13px;
+}
+.icon-btn:hover{background:var(--line-soft);}
+.empty-state{padding:48px 20px;text-align:center;color:var(--text-faint);font-size:13px;}
+
+.badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+  text-transform:uppercase;letter-spacing:.02em;
+}
+.badge.pendente{background:var(--accent-bg);color:var(--accent);}
+.badge.pago,.badge.recebido{background:var(--receita-bg);color:var(--receita);}
+.badge.atrasado{background:var(--warn-bg);color:var(--warn);}
+.badge.conciliado{background:var(--receita-bg);color:var(--receita);}
+.badge.pendente-conc{background:#EFEFEF;color:var(--text-soft);}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(20,35,61,0.5);display:none;
+  align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--card);border-radius:12px;padding:28px 30px;width:100%;max-width:520px;
+  max-height:90vh;overflow-y:auto;
+}
+.modal h3{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:18px;}
+.form-row{margin-bottom:14px;}
+.form-row label{display:block;font-size:12px;font-weight:600;color:var(--text-soft);margin-bottom:6px;}
+.form-row input,.form-row select,.form-row textarea{
+  width:100%;font-family:var(--font-ui);font-size:13.5px;padding:9px 11px;
+  border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--text);
+}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{outline:none;border-color:var(--accent);}
+.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;}
+.tipo-toggle{display:flex;gap:8px;margin-bottom:18px;}
+.tipo-toggle button{
+  flex:1;padding:10px;border-radius:7px;border:1.5px solid var(--line);background:#fff;
+  font-weight:700;font-size:13px;cursor:pointer;color:var(--text-soft);
+}
+.tipo-toggle button.sel-receita{border-color:var(--receita);background:var(--receita-bg);color:var(--receita);}
+.tipo-toggle button.sel-despesa{border-color:var(--despesa);background:var(--despesa-bg);color:var(--despesa);}
+
+/* CONCILIACAO */
+.upload-zone{
+  border:1.5px dashed var(--line);border-radius:10px;padding:26px;text-align:center;
+  background:var(--card);margin-bottom:22px;
+}
+.upload-zone p{font-size:12.5px;color:var(--text-soft);margin-top:8px;}
+.conc-columns{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.conc-col-title{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-soft);margin-bottom:10px;display:flex;justify-content:space-between;}
+.conc-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow-y:auto;}
+.conc-item{
+  background:var(--card);border:1.5px solid var(--line-soft);border-radius:8px;padding:11px 14px;
+  cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.conc-item:hover{border-color:var(--accent);}
+.conc-item.selected{border-color:var(--accent);background:var(--accent-bg);}
+.conc-item-desc{font-size:13px;font-weight:600;color:var(--text);}
+.conc-item-date{font-size:11px;color:var(--text-faint);margin-top:2px;}
+.conc-item-val{font-family:var(--font-mono);font-weight:700;font-size:13px;white-space:nowrap;}
+.conc-bar{
+  display:flex;align-items:center;justify-content:space-between;background:var(--ink);color:#fff;
+  padding:12px 18px;border-radius:8px;margin-bottom:14px;font-size:13px;
+}
+.conc-bar b{font-family:var(--font-mono);}
+
+/* NOTAS FISCAIS */
+.notas-settings{display:flex;gap:10px;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;}
+.notas-settings .form-row{margin-bottom:0;min-width:260px;}
+.bulk-bar{
+  display:flex;align-items:center;justify-content:space-between;background:var(--accent-bg);color:var(--accent);
+  padding:10px 16px;border-radius:8px;margin-bottom:14px;font-size:13px;font-weight:600;
+}
+.bulk-bar.hidden{display:none;}
+td.checkcol,th.checkcol{width:34px;text-align:center;}
+.badge.entrada{background:var(--despesa-bg);color:var(--despesa);}
+.badge.saida{background:var(--receita-bg);color:var(--receita);}
+.badge.indefinida{background:#EFEFEF;color:var(--text-soft);}
+.badge.convertido{background:var(--receita-bg);color:var(--receita);}
+
+/* EXPORT */
+.export-card{background:var(--card);border:1px solid var(--line-soft);border-radius:12px;padding:26px 28px;margin-bottom:18px;}
+.export-card h4{font-size:14.5px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+.export-card p{font-size:12.5px;color:var(--text-soft);margin-bottom:16px;max-width:520px;}
+.export-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+.totals-row td{font-weight:800;border-top:1px solid var(--ink);border-bottom:3px double var(--ink) !important;background:#FAFAF8;}
+
+.loading-msg{padding:60px;text-align:center;color:var(--text-faint);font-size:13px;}
+.toast{
+  position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:12px 18px;
+  border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  z-index:200;display:none;
+}
+.toast.show{display:block;animation:fadein .2s ease;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-eyebrow">Impacto Consultoria</div>
+      <div class="brand-name">Controle Financeiro</div>
+    </div>
+    <nav>
+      <button class="navlink active" data-page="dashboard"><span class="dot"></span>Dashboard</button>
+      <button class="navlink" data-page="pagar"><span class="dot"></span>Contas a Pagar</button>
+      <button class="navlink" data-page="receber"><span class="dot"></span>Contas a Receber</button>
+      <button class="navlink" data-page="custos"><span class="dot"></span>Custos &amp; Despesas</button>
+      <button class="navlink" data-page="notas"><span class="dot"></span>Notas Fiscais</button>
+      <button class="navlink" data-page="conciliacao"><span class="dot"></span>Conciliação Bancária</button>
+      <button class="navlink" data-page="exportar"><span class="dot"></span>Exportar</button>
+    </nav>
+    <div class="sidebar-foot">Dados salvos automaticamente neste artifact, de forma privada.</div>
+  </aside>
+
+  <main>
+    <div id="loading" class="loading-msg">Carregando seus dados...</div>
+
+    <!-- DASHBOARD -->
+    <section class="page" id="page-dashboard">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Visão geral</div>
+          <div class="page-sub">Seu fluxo de caixa em um só lugar.</div>
+        </div>
+      </div>
+
+      <div class="hero">
+        <div>
+          <div class="hero-label">Saldo Projetado (pendências)</div>
+          <div class="hero-value" id="saldoProjetado">R$ 0,00</div>
+          <div class="hero-note">Diferença entre tudo que está para receber e tudo que está para pagar, considerando lançamentos ainda não efetivados.</div>
+        </div>
+        <div class="hero-mini">
+          <div class="hero-mini-item">
+            <div class="hero-mini-label">A Receber</div>
+            <div class="hero-mini-value" style="color:var(--receita)" id="miniReceber">R$ 0,00</div>
+          </div>
+          <div class="hero-mini-item">
+            <div class="hero-mini-label">A Pagar</div>
+            <div class="hero-mini-value" style="color:var(--despesa)" id="miniPagar">R$ 0,00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-label">Recebido no mês</div>
+          <div class="kpi-value receita" id="kpiRecebidoMes">R$ 0,00</div>
+          <div class="kpi-foot" id="kpiRecebidoMesFoot">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Pago no mês</div>
+          <div class="kpi-value despesa" id="kpiPagoMes">R$ 0,00</div>
+          <div class="kpi-foot" id="kpiPagoMesFoot">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Contas atrasadas</div>
+          <div class="kpi-value" id="kpiAtrasadas">0</div>
+          <div class="kpi-foot" id="kpiAtrasadasFoot">—</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Não conciliados</div>
+          <div class="kpi-value" id="kpiNaoConciliados">0</div>
+          <div class="kpi-foot">lançamentos sem extrato pareado</div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-title">Fluxo de caixa — próximos 6 meses</div>
+          <div class="panel-sub">Receitas e despesas previstas por vencimento</div>
+          <div class="barchart" id="barchart"></div>
+          <div class="chart-legend">
+            <span><span class="legend-dot" style="background:var(--receita)"></span>Receitas</span>
+            <span><span class="legend-dot" style="background:var(--despesa)"></span>Despesas</span>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Despesas do mês por categoria</div>
+          <div class="panel-sub">Onde o dinheiro está saindo</div>
+          <div id="donutWrap"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTAS A PAGAR -->
+    <section class="page" id="page-pagar">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Contas a Pagar</div>
+          <div class="page-sub">Custos, despesas e obrigações da sua operação.</div>
+        </div>
+        <button class="btn btn-despesa" onclick="openModal('pagar')">+ Nova conta a pagar</button>
+      </div>
+      <div class="table-tools">
+        <input class="input search-input" id="buscaPagar" placeholder="Buscar por descrição, fornecedor ou unidade..." oninput="renderPagar()">
+        <select class="select" id="filtroStatusPagar" onchange="renderPagar()">
+          <option value="">Todos os status</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Atrasado">Atrasado</option>
+          <option value="Pago">Pago</option>
+        </select>
+        <select class="select" id="filtroUnidadePagar" onchange="renderPagar()">
+          <option value="">Todas as unidades</option>
+        </select>
+      </div>
+      <div id="tabelaPagar"></div>
+    </section>
+
+    <!-- CONTAS A RECEBER -->
+    <section class="page" id="page-receber">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Contas a Receber</div>
+          <div class="page-sub">Vendas, comissões, mentorias e serviços a receber.</div>
+        </div>
+        <button class="btn btn-receita" onclick="openModal('receber')">+ Nova conta a receber</button>
+      </div>
+      <div class="table-tools">
+        <input class="input search-input" id="buscaReceber" placeholder="Buscar por descrição, cliente ou unidade..." oninput="renderReceber()">
+        <select class="select" id="filtroStatusReceber" onchange="renderReceber()">
+          <option value="">Todos os status</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Atrasado">Atrasado</option>
+          <option value="Recebido">Recebido</option>
+        </select>
+        <select class="select" id="filtroUnidadeReceber" onchange="renderReceber()">
+          <option value="">Todas as unidades</option>
+        </select>
+      </div>
+      <div id="tabelaReceber"></div>
+    </section>
+
+    <!-- CUSTOS & DESPESAS -->
+    <section class="page" id="page-custos">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Custos &amp; Despesas</div>
+          <div class="page-sub">Análise por categoria, para enxergar onde cortar ou investir.</div>
+        </div>
+        <select class="select" id="mesCustos" onchange="renderCustos()"></select>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <div class="panel-title">Por categoria</div>
+          <div class="panel-sub" id="custosResumo">—</div>
+          <div id="donutCustos"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Comparativo</div>
+          <div class="panel-sub">Mês selecionado vs. mês anterior</div>
+          <div id="comparativoCustos"></div>
+        </div>
+      </div>
+      <div id="tabelaCustos"></div>
+    </section>
+
+    <!-- NOTAS FISCAIS -->
+    <section class="page" id="page-notas">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Notas Fiscais</div>
+          <div class="page-sub">Importe XML de NFe/NFSe em lote e gere lançamentos financeiros a partir delas.</div>
+        </div>
+      </div>
+
+      <div class="upload-zone">
+        <input type="file" id="fileNotas" accept=".xml" multiple style="display:none" onchange="handleNotasUpload(event)">
+        <button class="btn btn-primary" onclick="document.getElementById('fileNotas').click()">Importar notas fiscais (.xml — selecione vários arquivos de uma vez)</button>
+        <p>Aceita XML de NFe/NFCe e, em caráter experimental, NFS-e (o layout de NFS-e varia por prefeitura — confira os dados após importar).</p>
+      </div>
+
+      <div class="notas-settings">
+        <div class="form-row">
+          <label>Meu CNPJ (opcional — ajuda a identificar se a nota é a pagar ou a receber)</label>
+          <input type="text" class="input" id="fMeuCnpj" placeholder="00.000.000/0000-00" onchange="salvarMeuCnpj()">
+        </div>
+      </div>
+
+      <div class="table-tools">
+        <input class="input search-input" id="buscaNotas" placeholder="Buscar por número, chave, emitente ou destinatário..." oninput="renderNotas()">
+        <select class="select" id="filtroStatusNotas" onchange="renderNotas()">
+          <option value="">Todos os status</option>
+          <option value="pendente">Pendente</option>
+          <option value="convertido">Convertida</option>
+        </select>
+        <select class="select" id="filtroDirecaoNotas" onchange="renderNotas()">
+          <option value="">Todas as direções</option>
+          <option value="saida">Saída (a receber)</option>
+          <option value="entrada">Entrada (a pagar)</option>
+          <option value="indefinida">Indefinida</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="selecionarTodasPendentesNotas()">Selecionar todas pendentes</button>
+        <button class="btn btn-ghost btn-sm" onclick="limparSelecaoNotas()">Limpar seleção</button>
+      </div>
+
+      <div class="bulk-bar hidden" id="bulkBarNotas">
+        <span><b id="bulkCountNotas">0</b> nota(s) selecionada(s)</span>
+        <button class="btn btn-primary btn-sm" onclick="gerarLancamentosSelecionadas()">Gerar lançamentos das selecionadas</button>
+      </div>
+
+      <div id="tabelaNotas"></div>
+    </section>
+
+    <!-- CONCILIAÇÃO -->
+    <section class="page" id="page-conciliacao">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Conciliação Bancária</div>
+          <div class="page-sub">Importe o extrato (OFX ou CSV) e pareie com seus lançamentos.</div>
+        </div>
+      </div>
+
+      <div class="upload-zone">
+        <input type="file" id="fileExtrato" accept=".ofx,.csv,.txt" style="display:none" onchange="handleFileUpload(event)">
+        <button class="btn btn-primary" onclick="document.getElementById('fileExtrato').click()">Importar extrato (.ofx ou .csv)</button>
+        <p>O extrato fica salvo aqui mesmo, no seu artifact. CSV esperado: Data, Descrição, Valor.</p>
+      </div>
+
+      <div class="conc-bar">
+        <span>Lançamentos conciliados: <b id="concCount">0</b></span>
+        <span>Total conciliado: <b id="concTotal">R$ 0,00</b></span>
+        <button class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,0.3)" onclick="clearExtrato()">Limpar extrato importado</button>
+      </div>
+
+      <div id="concInstrucao" class="panel" style="margin-bottom:16px;display:none;">
+        Selecione um item do extrato e depois um lançamento correspondente para parear. <button class="btn btn-sm btn-ghost" onclick="cancelarSelecao()">cancelar seleção</button>
+      </div>
+
+      <div class="conc-columns">
+        <div>
+          <div class="conc-col-title"><span>Extrato bancário (não conciliado)</span></div>
+          <div class="conc-list" id="listaExtrato"></div>
+        </div>
+        <div>
+          <div class="conc-col-title"><span>Lançamentos do sistema (não conciliados)</span></div>
+          <div class="conc-list" id="listaLancamentosConc"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPORTAR -->
+    <section class="page" id="page-exportar">
+      <div class="page-head">
+        <div>
+          <div class="page-title">Exportar</div>
+          <div class="page-sub">Gere arquivos para a contabilidade e para seus registros.</div>
+        </div>
+      </div>
+
+      <div class="export-card">
+        <h4>Exportação de contabilizações (CSV)</h4>
+        <p>Gera um arquivo com débito, crédito e histórico de cada lançamento do período, pronto para envio ao contador ou importação no sistema contábil.</p>
+        <div class="export-controls">
+          <select class="select" id="periodoExport"></select>
+          <select class="select" id="tipoExport">
+            <option value="todos">Pagar + Receber</option>
+            <option value="pagar">Somente Contas a Pagar</option>
+            <option value="receber">Somente Contas a Receber</option>
+          </select>
+          <button class="btn btn-primary" onclick="exportarContabilizacoes()">Baixar CSV de contabilização</button>
+        </div>
+      </div>
+
+      <div class="export-card">
+        <h4>Relatório de conciliação bancária</h4>
+        <p>Lista de lançamentos conciliados e pendentes de conciliação, com a transação do extrato vinculada a cada um.</p>
+        <div class="export-controls">
+          <button class="btn btn-primary" onclick="exportarConciliacao()">Baixar relatório de conciliação</button>
+        </div>
+      </div>
+
+      <div class="export-card">
+        <h4>Notas fiscais importadas (CSV)</h4>
+        <p>Lista de todas as notas fiscais importadas via XML, com dados do emitente/destinatário, valor e status de conversão em lançamento.</p>
+        <div class="export-controls">
+          <button class="btn btn-primary" onclick="exportarNotasFiscais()">Baixar CSV de notas fiscais</button>
+        </div>
+      </div>
+
+      <div class="export-card">
+        <h4>Backup completo</h4>
+        <p>Exporta todos os lançamentos e o extrato importado em um único CSV — útil para guardar uma cópia fora daqui.</p>
+        <div class="export-controls">
+          <button class="btn btn-primary" onclick="exportarBackup()">Baixar backup completo</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- MODAL LANÇAMENTO -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Novo lançamento</h3>
+    <div class="tipo-toggle">
+      <button id="toggleDespesa" onclick="setTipo('pagar')">Pagar (despesa)</button>
+      <button id="toggleReceita" onclick="setTipo('receber')">Receber (receita)</button>
+    </div>
+    <div class="form-row">
+      <label>Descrição</label>
+      <input type="text" id="fDescricao" placeholder="Ex: Mensalidade plataforma de cursos">
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label id="labelTerceiro">Fornecedor</label>
+        <input type="text" id="fTerceiro" placeholder="Nome">
+      </div>
+      <div class="form-row">
+        <label>Unidade de negócio</label>
+        <input type="text" id="fUnidade" list="unidadesList" placeholder="Selecione ou digite">
+        <datalist id="unidadesList"></datalist>
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>Categoria</label>
+        <input type="text" id="fCategoria" list="categoriasList" placeholder="Selecione ou digite">
+        <datalist id="categoriasList"></datalist>
+      </div>
+      <div class="form-row">
+        <label>Valor (R$)</label>
+        <input type="number" step="0.01" min="0" id="fValor" placeholder="0,00">
+      </div>
+    </div>
+    <div class="form-2col">
+      <div class="form-row">
+        <label>Vencimento</label>
+        <input type="date" id="fVencimento">
+      </div>
+      <div class="form-row">
+        <label id="labelDataEf">Data do pagamento (se já pago)</label>
+        <input type="date" id="fDataEf">
+      </div>
+    </div>
+    <div class="form-row">
+      <label>Observação</label>
+      <textarea id="fObs" rows="2" placeholder="Opcional"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarLancamento()">Salvar lançamento</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ ESTADO E PERSISTÊNCIA ============ */
+const STORAGE_KEY = 'controle-financeiro-impacto-v1';
+let state = { lancamentos: [], extrato: [], notasFiscais: [], nextLancId: 1, nextExtId: 1, nextNotaId: 1, meuCnpj: '' };
+let editingId = null;
+let modalTipo = 'pagar';
+let concSelecaoExtrato = null;
+let notasSelecionadas = new Set();
+
+const UNIDADES_PADRAO = ['Luz Inteligência','Impacto Consultoria','Instituto Você','Pessoal'];
+const CATEGORIAS_PAGAR = ['Custo Fixo','Custo Variável','Despesa Operacional','Imposto/Taxa','Folha/Pró-labore','Marketing','Ferramentas/Software','Outros'];
+const CATEGORIAS_RECEBER = ['Receita de Serviço','Comissão','Venda de Curso','Mentoria/Consultoria','Outros'];
+
+const CONTA_CAIXA = '1.1.01 Caixa/Banco';
+const MAPA_CONTAS_PAGAR = {
+  'Custo Fixo':'3.1.01 Custos Fixos','Custo Variável':'3.1.02 Custos Variáveis',
+  'Despesa Operacional':'3.2.01 Despesas Operacionais','Imposto/Taxa':'3.2.02 Impostos e Taxas',
+  'Folha/Pró-labore':'3.2.03 Pró-labore','Marketing':'3.2.04 Marketing e Publicidade',
+  'Ferramentas/Software':'3.2.05 Ferramentas e Software','Outros':'3.2.99 Outras Despesas'
+};
+const MAPA_CONTAS_RECEBER = {
+  'Receita de Serviço':'4.1.01 Receita de Serviços','Comissão':'4.1.02 Receita de Comissões',
+  'Venda de Curso':'4.1.03 Receita de Cursos','Mentoria/Consultoria':'4.1.04 Receita de Mentoria',
+  'Outros':'4.1.99 Outras Receitas'
+};
+const DONUT_COLORS = ['#146B4B','#2E6F8E','#B7791F','#8C3A2B','#5B6472','#6E4C8C','#1F3354','#9C7A2E'];
+
+async function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      state = Object.assign(state, parsed);
+    }
+  }catch(e){
+    // dado ainda não existe ou corrompido — segue com estado padrão
+  }
+  document.getElementById('loading').style.display = 'none';
+  initFilters();
+  renderAll();
+}
+
+async function saveData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    showToast('Não foi possível salvar agora. Verifique o espaço de armazenamento do navegador.');
+  }
+}
+
+/* ============ NAVEGAÇÃO ============ */
+document.querySelectorAll('.navlink').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.navlink').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const page = btn.dataset.page;
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    if(page==='custos') renderCustos();
+    if(page==='notas') renderNotas();
+    if(page==='conciliacao') renderConciliacao();
+    if(page==='exportar') initExportPeriods();
+  });
+});
+
+/* ============ HELPERS ============ */
+function fmtMoeda(v){
+  return (v<0?'-':'') + 'R$ ' + Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtData(iso){
+  if(!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+function hoje(){ return new Date().toISOString().slice(0,10); }
+function mesAno(iso){ return iso ? iso.slice(0,7) : ''; }
+function nomeMes(mesIso){
+  const [y,m] = mesIso.split('-');
+  const nomes = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  return nomes[parseInt(m,10)-1] + '/' + y.slice(2);
+}
+function statusDe(l){
+  if(l.dataEf) return l.tipo==='pagar' ? 'Pago' : 'Recebido';
+  if(l.vencimento < hoje()) return 'Atrasado';
+  return 'Pendente';
+}
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function uniqueUnidades(){
+  const set = new Set(UNIDADES_PADRAO);
+  state.lancamentos.forEach(l=>{ if(l.unidade) set.add(l.unidade); });
+  return Array.from(set);
+}
+
+/* ============ FILTROS / DATALISTS ============ */
+function initFilters(){
+  const unidades = uniqueUnidades();
+  ['unidadesList'].forEach(id=>{
+    const dl = document.getElementById(id);
+    dl.innerHTML = unidades.map(u=>`<option value="${u}">`).join('');
+  });
+  ['filtroUnidadePagar','filtroUnidadeReceber'].forEach(id=>{
+    const sel = document.getElementById(id);
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">Todas as unidades</option>' + unidades.map(u=>`<option value="${u}">${u}</option>`).join('');
+    sel.value = cur;
+  });
+}
+
+/* ============ MODAL LANÇAMENTO ============ */
+function openModal(tipo, id){
+  editingId = id || null;
+  setTipo(tipo);
+  document.getElementById('modalTitle').textContent = id ? 'Editar lançamento' : (tipo==='pagar' ? 'Nova conta a pagar' : 'Nova conta a receber');
+  if(id){
+    const l = state.lancamentos.find(x=>x.id===id);
+    document.getElementById('fDescricao').value = l.descricao;
+    document.getElementById('fTerceiro').value = l.terceiro||'';
+    document.getElementById('fUnidade').value = l.unidade||'';
+    document.getElementById('fCategoria').value = l.categoria||'';
+    document.getElementById('fValor').value = l.valor;
+    document.getElementById('fVencimento').value = l.vencimento;
+    document.getElementById('fDataEf').value = l.dataEf||'';
+    document.getElementById('fObs').value = l.obs||'';
+  }else{
+    document.getElementById('fDescricao').value='';
+    document.getElementById('fTerceiro').value='';
+    document.getElementById('fUnidade').value='';
+    document.getElementById('fCategoria').value='';
+    document.getElementById('fValor').value='';
+    document.getElementById('fVencimento').value=hoje();
+    document.getElementById('fDataEf').value='';
+    document.getElementById('fObs').value='';
+  }
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  editingId = null;
+}
+function setTipo(tipo){
+  modalTipo = tipo;
+  const despB = document.getElementById('toggleDespesa');
+  const recB = document.getElementById('toggleReceita');
+  despB.classList.toggle('sel-despesa', tipo==='pagar');
+  recB.classList.toggle('sel-receita', tipo==='receber');
+  document.getElementById('labelTerceiro').textContent = tipo==='pagar' ? 'Fornecedor' : 'Cliente';
+  document.getElementById('labelDataEf').textContent = tipo==='pagar' ? 'Data do pagamento (se já pago)' : 'Data do recebimento (se já recebido)';
+  const cats = tipo==='pagar' ? CATEGORIAS_PAGAR : CATEGORIAS_RECEBER;
+  document.getElementById('categoriasList').innerHTML = cats.map(c=>`<option value="${c}">`).join('');
+}
+function salvarLancamento(){
+  const descricao = document.getElementById('fDescricao').value.trim();
+  const valor = parseFloat(document.getElementById('fValor').value);
+  const vencimento = document.getElementById('fVencimento').value;
+  if(!descricao || !valor || valor<=0 || !vencimento){
+    showToast('Preencha descrição, valor e vencimento.');
+    return;
+  }
+  const dados = {
+    tipo: modalTipo,
+    descricao,
+    terceiro: document.getElementById('fTerceiro').value.trim(),
+    unidade: document.getElementById('fUnidade').value.trim() || 'Pessoal',
+    categoria: document.getElementById('fCategoria').value.trim() || 'Outros',
+    valor,
+    vencimento,
+    dataEf: document.getElementById('fDataEf').value || null,
+    obs: document.getElementById('fObs').value.trim(),
+  };
+  if(editingId){
+    const idx = state.lancamentos.findIndex(x=>x.id===editingId);
+    state.lancamentos[idx] = Object.assign(state.lancamentos[idx], dados);
+  }else{
+    dados.id = state.nextLancId++;
+    dados.conciliadoCom = null;
+    state.lancamentos.push(dados);
+  }
+  saveData();
+  initFilters();
+  renderAll();
+  closeModal();
+  showToast('Lançamento salvo.');
+}
+function marcarEfetivado(id){
+  const l = state.lancamentos.find(x=>x.id===id);
+  l.dataEf = hoje();
+  saveData();
+  renderAll();
+  showToast(l.tipo==='pagar' ? 'Marcado como pago.' : 'Marcado como recebido.');
+}
+function excluirLancamento(id){
+  state.lancamentos = state.lancamentos.filter(x=>x.id!==id);
+  state.extrato.forEach(e=>{ if(e.conciliadoCom===id) e.conciliadoCom=null; });
+  saveData();
+  renderAll();
+  showToast('Lançamento excluído.');
+}
+
+/* ============ TABELAS ============ */
+function renderPagar(){
+  const busca = document.getElementById('buscaPagar').value.toLowerCase();
+  const fStatus = document.getElementById('filtroStatusPagar').value;
+  const fUnidade = document.getElementById('filtroUnidadePagar').value;
+  let lista = state.lancamentos.filter(l=>l.tipo==='pagar');
+  lista = lista.filter(l=>{
+    const st = statusDe(l);
+    if(fStatus && st!==fStatus) return false;
+    if(fUnidade && l.unidade!==fUnidade) return false;
+    if(busca && !(l.descricao+' '+l.terceiro+' '+l.unidade).toLowerCase().includes(busca)) return false;
+    return true;
+  });
+  lista.sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  renderTabelaLancamentos('tabelaPagar', lista, 'pagar');
+}
+function renderReceber(){
+  const busca = document.getElementById('buscaReceber').value.toLowerCase();
+  const fStatus = document.getElementById('filtroStatusReceber').value;
+  const fUnidade = document.getElementById('filtroUnidadeReceber').value;
+  let lista = state.lancamentos.filter(l=>l.tipo==='receber');
+  lista = lista.filter(l=>{
+    const st = statusDe(l);
+    if(fStatus && st!==fStatus) return false;
+    if(fUnidade && l.unidade!==fUnidade) return false;
+    if(busca && !(l.descricao+' '+l.terceiro+' '+l.unidade).toLowerCase().includes(busca)) return false;
+    return true;
+  });
+  lista.sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  renderTabelaLancamentos('tabelaReceber', lista, 'receber');
+}
+function renderTabelaLancamentos(containerId, lista, tipo){
+  const el = document.getElementById(containerId);
+  if(lista.length===0){
+    el.innerHTML = `<div class="empty-state">Nenhum lançamento encontrado. ${tipo==='pagar'?'Cadastre uma conta a pagar para começar.':'Cadastre uma conta a receber para começar.'}</div>`;
+    return;
+  }
+  const total = lista.reduce((s,l)=>s+l.valor,0);
+  const rows = lista.map(l=>{
+    const st = statusDe(l);
+    const stClass = st.toLowerCase();
+    return `<tr>
+      <td>${fmtData(l.vencimento)}</td>
+      <td><div style="font-weight:600">${l.descricao}</div><div style="color:var(--text-faint);font-size:11.5px">${l.terceiro||''}</div></td>
+      <td>${l.unidade}</td>
+      <td>${l.categoria}</td>
+      <td><span class="badge ${stClass}">${st}</span></td>
+      <td class="num ${tipo==='pagar'?'despesa':'receita'}">${fmtMoeda(l.valor)}</td>
+      <td>
+        <div class="row-actions">
+          ${st!=='Pago' && st!=='Recebido' ? `<button class="btn btn-sm ${tipo==='pagar'?'btn-despesa':'btn-receita'}" onclick="marcarEfetivado(${l.id})">${tipo==='pagar'?'Pagar':'Receber'}</button>` : ''}
+          <button class="icon-btn" title="Editar" onclick="openModal('${tipo}', ${l.id})">✎</button>
+          <button class="icon-btn" title="Excluir" onclick="if(confirm('Excluir este lançamento?')) excluirLancamento(${l.id})">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `<table>
+    <thead><tr><th>Vencimento</th><th>Descrição</th><th>Unidade</th><th>Categoria</th><th>Status</th><th style="text-align:right">Valor</th><th></th></tr></thead>
+    <tbody>${rows}
+      <tr class="totals-row"><td colspan="5">Total (${lista.length} ${lista.length===1?'lançamento':'lançamentos'})</td><td class="num">${fmtMoeda(total)}</td><td></td></tr>
+    </tbody>
+  </table>`;
+}
+
+/* ============ DASHBOARD ============ */
+function renderDashboard(){
+  const pendPagar = state.lancamentos.filter(l=>l.tipo==='pagar' && !l.dataEf);
+  const pendReceber = state.lancamentos.filter(l=>l.tipo==='receber' && !l.dataEf);
+  const totalPagar = pendPagar.reduce((s,l)=>s+l.valor,0);
+  const totalReceber = pendReceber.reduce((s,l)=>s+l.valor,0);
+  const saldo = totalReceber - totalPagar;
+
+  document.getElementById('saldoProjetado').textContent = fmtMoeda(saldo);
+  document.getElementById('saldoProjetado').classList.toggle('neg', saldo<0);
+  document.getElementById('miniReceber').textContent = fmtMoeda(totalReceber);
+  document.getElementById('miniPagar').textContent = fmtMoeda(totalPagar);
+
+  const mesAtual = hoje().slice(0,7);
+  const recebidoMes = state.lancamentos.filter(l=>l.tipo==='receber' && l.dataEf && mesAno(l.dataEf)===mesAtual).reduce((s,l)=>s+l.valor,0);
+  const pagoMes = state.lancamentos.filter(l=>l.tipo==='pagar' && l.dataEf && mesAno(l.dataEf)===mesAtual).reduce((s,l)=>s+l.valor,0);
+  document.getElementById('kpiRecebidoMes').textContent = fmtMoeda(recebidoMes);
+  document.getElementById('kpiPagoMes').textContent = fmtMoeda(pagoMes);
+  document.getElementById('kpiRecebidoMesFoot').textContent = nomeMes(mesAtual+'-01');
+  document.getElementById('kpiPagoMesFoot').textContent = nomeMes(mesAtual+'-01');
+
+  const atrasadas = state.lancamentos.filter(l=>statusDe(l)==='Atrasado');
+  document.getElementById('kpiAtrasadas').textContent = atrasadas.length;
+  const valorAtraso = atrasadas.reduce((s,l)=>s+l.valor,0);
+  document.getElementById('kpiAtrasadasFoot').textContent = atrasadas.length ? fmtMoeda(valorAtraso) + ' em aberto' : 'tudo em dia';
+
+  const naoConc = state.lancamentos.filter(l=>!l.conciliadoCom);
+  document.getElementById('kpiNaoConciliados').textContent = naoConc.length;
+
+  renderBarChart();
+  renderDonutDespesasMes();
+}
+
+function renderBarChart(){
+  const meses = [];
+  const d = new Date();
+  for(let i=0;i<6;i++){
+    const mi = new Date(d.getFullYear(), d.getMonth()+i, 1);
+    meses.push(mi.toISOString().slice(0,7));
+  }
+  const dados = meses.map(m=>{
+    const rec = state.lancamentos.filter(l=>l.tipo==='receber' && mesAno(l.vencimento)===m).reduce((s,l)=>s+l.valor,0);
+    const desp = state.lancamentos.filter(l=>l.tipo==='pagar' && mesAno(l.vencimento)===m).reduce((s,l)=>s+l.valor,0);
+    return {m, rec, desp};
+  });
+  const max = Math.max(1, ...dados.map(x=>Math.max(x.rec,x.desp)));
+  const html = dados.map(x=>{
+    const hr = Math.max(2, Math.round((x.rec/max)*130));
+    const hd = Math.max(2, Math.round((x.desp/max)*130));
+    return `<div class="bar-col">
+      <div class="bar-pair">
+        <div class="bar r" style="height:${hr}px" title="Receitas ${fmtMoeda(x.rec)}"></div>
+        <div class="bar d" style="height:${hd}px" title="Despesas ${fmtMoeda(x.desp)}"></div>
+      </div>
+      <div class="bar-month">${nomeMes(x.m+'-01')}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('barchart').innerHTML = html;
+}
+
+function renderDonutDespesasMes(){
+  const mesAtual = hoje().slice(0,7);
+  const desp = state.lancamentos.filter(l=>l.tipo==='pagar' && mesAno(l.vencimento)===mesAtual);
+  renderDonutGeneric('donutWrap', desp);
+}
+
+function renderDonutGeneric(containerId, lista){
+  const el = document.getElementById(containerId);
+  if(lista.length===0){
+    el.innerHTML = '<div class="empty-state">Sem despesas lançadas neste mês.</div>';
+    return;
+  }
+  const porCat = {};
+  lista.forEach(l=>{ porCat[l.categoria] = (porCat[l.categoria]||0) + l.valor; });
+  const total = Object.values(porCat).reduce((a,b)=>a+b,0);
+  const entries = Object.entries(porCat).sort((a,b)=>b[1]-a[1]);
+  let acc = 0;
+  const stops = entries.map((e,i)=>{
+    const pct = (e[1]/total)*100;
+    const start = acc;
+    acc += pct;
+    return `${DONUT_COLORS[i%DONUT_COLORS.length]} ${start}% ${acc}%`;
+  }).join(', ');
+  const legend = entries.map((e,i)=>`
+    <div class="donut-item">
+      <span class="donut-item-name"><span class="donut-swatch" style="background:${DONUT_COLORS[i%DONUT_COLORS.length]}"></span>${e[0]}</span>
+      <span class="donut-item-val">${fmtMoeda(e[1])}</span>
+    </div>`).join('');
+  el.innerHTML = `<div class="donut-wrap">
+    <div class="donut" style="background:conic-gradient(${stops})"></div>
+    <div class="donut-legend">${legend}</div>
+  </div>`;
+}
+
+/* ============ CUSTOS & DESPESAS ============ */
+function initMesCustos(){
+  const sel = document.getElementById('mesCustos');
+  const meses = new Set();
+  state.lancamentos.filter(l=>l.tipo==='pagar').forEach(l=>meses.add(mesAno(l.vencimento)));
+  meses.add(hoje().slice(0,7));
+  const arr = Array.from(meses).sort().reverse();
+  sel.innerHTML = arr.map(m=>`<option value="${m}">${nomeMes(m+'-01')}</option>`).join('');
+}
+function renderCustos(){
+  initMesCustos();
+  const sel = document.getElementById('mesCustos');
+  const mes = sel.value;
+  const lista = state.lancamentos.filter(l=>l.tipo==='pagar' && mesAno(l.vencimento)===mes);
+  const total = lista.reduce((s,l)=>s+l.valor,0);
+  document.getElementById('custosResumo').textContent = `${nomeMes(mes+'-01')} · ${fmtMoeda(total)} em ${lista.length} lançamentos`;
+  renderDonutGeneric('donutCustos', lista);
+
+  const [y,m] = mes.split('-');
+  const dataAnt = new Date(parseInt(y),parseInt(m,10)-2,1);
+  const mesAnt = dataAnt.toISOString().slice(0,7);
+  const listaAnt = state.lancamentos.filter(l=>l.tipo==='pagar' && mesAno(l.vencimento)===mesAnt);
+  const totalAnt = listaAnt.reduce((s,l)=>s+l.valor,0);
+  const delta = totalAnt>0 ? ((total-totalAnt)/totalAnt*100) : (total>0?100:0);
+  const sinal = delta>=0?'+':'';
+  document.getElementById('comparativoCustos').innerHTML = `
+    <div style="display:flex;gap:24px;margin-bottom:14px;">
+      <div><div class="hero-mini-label">${nomeMes(mesAnt+'-01')}</div><div class="hero-mini-value">${fmtMoeda(totalAnt)}</div></div>
+      <div><div class="hero-mini-label">${nomeMes(mes+'-01')}</div><div class="hero-mini-value">${fmtMoeda(total)}</div></div>
+    </div>
+    <div class="badge ${delta>0?'atrasado':'pago'}" style="font-size:12px">${sinal}${delta.toFixed(1)}% vs. mês anterior</div>
+  `;
+
+  lista.sort((a,b)=>b.valor-a.valor);
+  renderTabelaLancamentos('tabelaCustos', lista, 'pagar');
+}
+
+/* ============ NOTAS FISCAIS ============ */
+function onlyDigits(s){ return (s||'').toString().replace(/\D/g,''); }
+
+function tagAll(root, localName){
+  if(!root) return [];
+  if(root.getElementsByTagNameNS){
+    try{
+      const arr = Array.from(root.getElementsByTagNameNS('*', localName));
+      if(arr.length) return arr;
+    }catch(e){}
+  }
+  return Array.from(root.getElementsByTagName ? root.getElementsByTagName(localName) : []);
+}
+function tagText(root, localName){
+  const arr = tagAll(root, localName);
+  return arr.length ? (arr[0].textContent||'').trim() : '';
+}
+function tagTextAny(root, localNames){
+  for(const n of localNames){
+    const v = tagText(root, n);
+    if(v) return v;
+  }
+  return '';
+}
+
+function parseNotaFiscalXML(xmlText, filename){
+  let doc;
+  try{ doc = new DOMParser().parseFromString(xmlText, 'text/xml'); }catch(e){ return null; }
+  if(!doc || doc.getElementsByTagName('parsererror').length) return null;
+
+  // --- NFe / NFCe ---
+  const infNFe = tagAll(doc, 'infNFe')[0];
+  if(infNFe){
+    const ide = tagAll(infNFe, 'ide')[0];
+    const emit = tagAll(infNFe, 'emit')[0];
+    const dest = tagAll(infNFe, 'dest')[0];
+    const total = tagAll(infNFe, 'ICMSTot')[0];
+    let chave = infNFe.getAttribute ? (infNFe.getAttribute('Id')||'') : '';
+    chave = chave.replace(/^NFe/i,'');
+    if(!chave){
+      chave = tagText(doc, 'chNFe');
+    }
+    const dhEmi = tagText(ide,'dhEmi') || tagText(ide,'dEmi');
+    const dataEmissao = dhEmi ? dhEmi.slice(0,10) : hoje();
+    const tpNF = tagText(ide,'tpNF');
+    return {
+      tipoDoc: 'NFe',
+      chave,
+      numero: tagText(ide,'nNF'),
+      serie: tagText(ide,'serie'),
+      dataEmissao,
+      naturezaOperacao: tagText(ide,'natOp'),
+      emitenteNome: tagText(emit,'xNome'),
+      emitenteCNPJ: tagText(emit,'CNPJ') || tagText(emit,'CPF'),
+      destinatarioNome: tagText(dest,'xNome'),
+      destinatarioCNPJ: tagText(dest,'CNPJ') || tagText(dest,'CPF'),
+      valor: parseFloat(tagText(total,'vNF')) || 0,
+      direcaoDoc: tpNF==='1' ? 'saida' : (tpNF==='0' ? 'entrada' : null),
+      arquivo: filename
+    };
+  }
+
+  // --- NFS-e (layout varia por prefeitura — tentativa heurística) ---
+  const pareceNFSe = /nfse|notafiscalservico|infnfse|compnfse|rps/i.test(xmlText);
+  if(pareceNFSe){
+    const prestadorNode = tagAll(doc,'PrestadorServico')[0] || tagAll(doc,'Prestador')[0] || doc;
+    const tomadorNode = tagAll(doc,'TomadorServico')[0] || tagAll(doc,'Tomador')[0] || doc;
+    const numero = tagTextAny(doc, ['Numero','NumeroNfse','nfseNumero']);
+    const dataRaw = tagTextAny(doc, ['DataEmissao','DataEmissaoNfse','dCompt','Competencia']);
+    const valorRaw = tagTextAny(doc, ['ValorServicos','ValorLiquidoNfse','valorServicos']);
+    return {
+      tipoDoc: 'NFSe',
+      chave: tagTextAny(doc, ['CodigoVerificacao','codigoVerificacao']),
+      numero,
+      serie: '',
+      dataEmissao: dataRaw ? dataRaw.slice(0,10) : hoje(),
+      naturezaOperacao: 'Prestação de serviço',
+      emitenteNome: tagTextAny(prestadorNode, ['RazaoSocial','Nome']),
+      emitenteCNPJ: tagTextAny(prestadorNode, ['Cnpj','CNPJ']),
+      destinatarioNome: tagTextAny(tomadorNode, ['RazaoSocial','Nome']),
+      destinatarioCNPJ: tagTextAny(tomadorNode, ['Cnpj','CNPJ']),
+      valor: parseFloat(String(valorRaw).replace(',','.')) || 0,
+      direcaoDoc: null,
+      arquivo: filename
+    };
+  }
+  return null;
+}
+
+function calcularDirecao(nota){
+  const meu = onlyDigits(state.meuCnpj);
+  if(meu){
+    if(onlyDigits(nota.emitenteCNPJ)===meu) return 'saida';
+    if(onlyDigits(nota.destinatarioCNPJ)===meu) return 'entrada';
+  }
+  if(nota.direcaoDoc) return nota.direcaoDoc;
+  return null;
+}
+
+function salvarMeuCnpj(){
+  state.meuCnpj = document.getElementById('fMeuCnpj').value.trim();
+  state.notasFiscais.forEach(n=>{ n.direcao = calcularDirecao(n); });
+  saveData();
+  renderNotas();
+}
+
+function handleNotasUpload(ev){
+  const files = Array.from(ev.target.files || []);
+  if(files.length===0) return;
+  let lidos = 0, importados = 0, ignorados = 0;
+  const finalizar = ()=>{
+    if(lidos!==files.length) return;
+    saveData();
+    initFilters();
+    renderNotas();
+    showToast(`${importados} nota(s) importada(s)${ignorados?', '+ignorados+' arquivo(s) não reconhecido(s)':''}.`);
+  };
+  files.forEach(file=>{
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      const parsed = parseNotaFiscalXML(e.target.result, file.name);
+      if(parsed){
+        parsed.id = state.nextNotaId++;
+        parsed.status = 'pendente';
+        parsed.lancamentoId = null;
+        parsed.direcao = calcularDirecao(parsed);
+        state.notasFiscais.push(parsed);
+        importados++;
+      }else{
+        ignorados++;
+      }
+      lidos++;
+      finalizar();
+    };
+    reader.onerror = ()=>{
+      ignorados++;
+      lidos++;
+      finalizar();
+    };
+    reader.readAsText(file);
+  });
+  ev.target.value = '';
+}
+
+function renderNotas(){
+  const cnpjInput = document.getElementById('fMeuCnpj');
+  if(cnpjInput) cnpjInput.value = state.meuCnpj || '';
+
+  const busca = document.getElementById('buscaNotas').value.toLowerCase();
+  const fStatus = document.getElementById('filtroStatusNotas').value;
+  const fDirecao = document.getElementById('filtroDirecaoNotas').value;
+
+  let lista = state.notasFiscais.filter(n=>{
+    if(fStatus && n.status!==fStatus) return false;
+    if(fDirecao && (n.direcao||'indefinida')!==fDirecao) return false;
+    if(busca && !((n.numero||'')+' '+(n.emitenteNome||'')+' '+(n.destinatarioNome||'')+' '+(n.chave||'')).toLowerCase().includes(busca)) return false;
+    return true;
+  });
+  lista.sort((a,b)=>b.dataEmissao.localeCompare(a.dataEmissao));
+
+  const bulkBar = document.getElementById('bulkBarNotas');
+  const idsVisiveis = new Set(lista.filter(n=>n.status==='pendente').map(n=>n.id));
+  Array.from(notasSelecionadas).forEach(id=>{
+    if(!state.notasFiscais.find(n=>n.id===id && n.status==='pendente')) notasSelecionadas.delete(id);
+  });
+  const selecionadasCount = Array.from(notasSelecionadas).filter(id=>idsVisiveis.has(id) || state.notasFiscais.find(n=>n.id===id && n.status==='pendente')).length;
+  bulkBar.classList.toggle('hidden', notasSelecionadas.size===0);
+  document.getElementById('bulkCountNotas').textContent = notasSelecionadas.size;
+
+  const el = document.getElementById('tabelaNotas');
+  if(lista.length===0){
+    el.innerHTML = '<div class="empty-state">Nenhuma nota fiscal importada ainda. Envie arquivos XML acima.</div>';
+    return;
+  }
+  const rows = lista.map(n=>{
+    const dirLabel = n.direcao==='saida' ? 'Saída (a receber)' : n.direcao==='entrada' ? 'Entrada (a pagar)' : 'Indefinida';
+    const dirClass = n.direcao==='saida' ? 'saida' : n.direcao==='entrada' ? 'entrada' : 'indefinida';
+    const podeGerar = n.status==='pendente';
+    return `<tr>
+      <td class="checkcol">${podeGerar ? `<input type="checkbox" ${notasSelecionadas.has(n.id)?'checked':''} onchange="toggleSelecaoNota(${n.id})">` : ''}</td>
+      <td>${fmtData(n.dataEmissao)}</td>
+      <td><div style="font-weight:600">${n.tipoDoc} ${n.numero||'—'}${n.serie?'/'+n.serie:''}</div><div style="color:var(--text-faint);font-size:11px">${n.chave || n.arquivo}</div></td>
+      <td>${n.emitenteNome||'—'}</td>
+      <td>${n.destinatarioNome||'—'}</td>
+      <td class="num">${fmtMoeda(n.valor)}</td>
+      <td><span class="badge ${dirClass}">${dirLabel}</span></td>
+      <td><span class="badge ${n.status==='convertido'?'convertido':'pendente'}">${n.status==='convertido'?'Convertida':'Pendente'}</span></td>
+      <td>
+        <div class="row-actions">
+          ${podeGerar ? `<button class="btn btn-sm btn-primary" onclick="gerarLancamentoNota(${n.id})">Gerar lançamento</button>` : ''}
+          <button class="icon-btn" title="Excluir" onclick="if(confirm('Excluir esta nota importada?')) excluirNota(${n.id})">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  el.innerHTML = `<table>
+    <thead><tr><th class="checkcol"></th><th>Emissão</th><th>Documento</th><th>Emitente</th><th>Destinatário</th><th style="text-align:right">Valor</th><th>Direção</th><th>Status</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function toggleSelecaoNota(id){
+  if(notasSelecionadas.has(id)) notasSelecionadas.delete(id); else notasSelecionadas.add(id);
+  renderNotas();
+}
+function selecionarTodasPendentesNotas(){
+  state.notasFiscais.filter(n=>n.status==='pendente').forEach(n=>notasSelecionadas.add(n.id));
+  renderNotas();
+}
+function limparSelecaoNotas(){
+  notasSelecionadas.clear();
+  renderNotas();
+}
+
+function criarLancamentoDeNota(n){
+  const direcao = n.direcao;
+  const tipo = direcao==='saida' ? 'receber' : 'pagar';
+  const terceiro = tipo==='pagar' ? (n.emitenteNome||'') : (n.destinatarioNome||'');
+  const dados = {
+    id: state.nextLancId++,
+    tipo,
+    descricao: (`${n.tipoDoc} ${n.numero||''} - ${terceiro||'Nota fiscal importada'}`).trim(),
+    terceiro,
+    unidade: 'Pessoal',
+    categoria: 'Nota Fiscal',
+    valor: n.valor,
+    vencimento: n.dataEmissao,
+    dataEf: null,
+    obs: `Importado via XML (${n.tipoDoc}). Chave/verificação: ${n.chave||'—'}. Natureza: ${n.naturezaOperacao||'—'}.`,
+    conciliadoCom: null
+  };
+  state.lancamentos.push(dados);
+  n.status = 'convertido';
+  n.lancamentoId = dados.id;
+  return dados;
+}
+function gerarLancamentoNota(id){
+  const n = state.notasFiscais.find(x=>x.id===id);
+  if(!n) return;
+  criarLancamentoDeNota(n);
+  notasSelecionadas.delete(id);
+  saveData();
+  initFilters();
+  renderAll();
+  showToast('Lançamento gerado a partir da nota fiscal. Confira e ajuste unidade/categoria se precisar.');
+}
+function gerarLancamentosSelecionadas(){
+  const alvo = state.notasFiscais.filter(n=>n.status==='pendente' && notasSelecionadas.has(n.id));
+  if(alvo.length===0){ showToast('Selecione ao menos uma nota pendente.'); return; }
+  alvo.forEach(n=>criarLancamentoDeNota(n));
+  notasSelecionadas.clear();
+  saveData();
+  initFilters();
+  renderAll();
+  showToast(`${alvo.length} lançamento(s) gerado(s). Confira em Contas a Pagar/Receber.`);
+}
+function excluirNota(id){
+  state.notasFiscais = state.notasFiscais.filter(n=>n.id!==id);
+  notasSelecionadas.delete(id);
+  saveData();
+  renderNotas();
+  showToast('Nota removida da lista.');
+}
+
+/* ============ CONCILIAÇÃO ============ */
+function handleFileUpload(ev){
+  const file = ev.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    const content = e.target.result;
+    let transacoes = [];
+    if(file.name.toLowerCase().endsWith('.ofx')){
+      transacoes = parseOFX(content);
+    }else{
+      transacoes = parseCSV(content);
+    }
+    if(transacoes.length===0){
+      showToast('Não encontrei transações nesse arquivo. Confira o formato.');
+      return;
+    }
+    transacoes.forEach(t=>{
+      t.id = state.nextExtId++;
+      t.conciliadoCom = null;
+      state.extrato.push(t);
+    });
+    saveData();
+    renderConciliacao();
+    showToast(`${transacoes.length} transações importadas.`);
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+function parseOFX(content){
+  const blocks = content.match(/<STMTTRN>[\s\S]*?<\/STMTTRN>/gi) || [];
+  return blocks.map(b=>{
+    const get = (tag)=>{
+      const m = b.match(new RegExp('<'+tag+'>([^<\\r\\n]+)','i'));
+      return m ? m[1].trim() : '';
+    };
+    const dt = get('DTPOSTED');
+    const data = dt.length>=8 ? `${dt.slice(0,4)}-${dt.slice(4,6)}-${dt.slice(6,8)}` : hoje();
+    const valor = parseFloat(get('TRNAMT')) || 0;
+    const desc = get('MEMO') || get('NAME') || 'Transação bancária';
+    return { data, descricao: desc, valor };
+  }).filter(t=>t.valor!==0);
+}
+function parseCSV(content){
+  const linhas = content.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const out = [];
+  linhas.forEach(linha=>{
+    const delim = linha.includes(';') ? ';' : ',';
+    const partes = linha.split(delim).map(p=>p.trim().replace(/^"|"$/g,''));
+    if(partes.length<3) return;
+    let [dataRaw, descricao, valorRaw] = partes;
+    // tenta detectar header
+    if(/data/i.test(dataRaw) && /valor/i.test(valorRaw)) return;
+    let data = dataRaw;
+    if(/^\d{2}\/\d{2}\/\d{4}$/.test(dataRaw)){
+      const [d,m,y] = dataRaw.split('/');
+      data = `${y}-${m}-${d}`;
+    }else if(!/^\d{4}-\d{2}-\d{2}$/.test(dataRaw)){
+      data = hoje();
+    }
+    let v = valorRaw.replace(/[^\d,.\-]/g,'');
+    if(v.includes(',') && v.includes('.')){
+      v = v.replace(/\./g,'').replace(',', '.');
+    }else if(v.includes(',')){
+      v = v.replace(',', '.');
+    }
+    const valor = parseFloat(v);
+    if(isNaN(valor) || valor===0) return;
+    out.push({ data, descricao: descricao || 'Transação', valor });
+  });
+  return out;
+}
+function clearExtrato(){
+  if(!confirm('Isso vai remover todas as transações importadas (mantém os lançamentos). Continuar?')) return;
+  state.extrato = [];
+  concSelecaoExtrato = null;
+  saveData();
+  renderConciliacao();
+}
+function renderConciliacao(){
+  const naoConcExtrato = state.extrato.filter(e=>!e.conciliadoCom);
+  const naoConcLanc = state.lancamentos.filter(l=>!l.conciliadoCom);
+  const concLanc = state.lancamentos.filter(l=>l.conciliadoCom);
+
+  document.getElementById('concCount').textContent = concLanc.length;
+  document.getElementById('concTotal').textContent = fmtMoeda(concLanc.reduce((s,l)=>s+l.valor,0));
+  document.getElementById('concInstrucao').style.display = concSelecaoExtrato ? 'block' : 'none';
+
+  const elExtrato = document.getElementById('listaExtrato');
+  if(naoConcExtrato.length===0){
+    elExtrato.innerHTML = '<div class="empty-state">Nenhuma transação pendente. Importe um extrato acima.</div>';
+  }else{
+    elExtrato.innerHTML = naoConcExtrato.map(t=>`
+      <div class="conc-item ${concSelecaoExtrato===t.id?'selected':''}" onclick="selecionarExtrato(${t.id})">
+        <div><div class="conc-item-desc">${t.descricao}</div><div class="conc-item-date">${fmtData(t.data)}</div></div>
+        <div class="conc-item-val" style="color:${t.valor>=0?'var(--receita)':'var(--despesa)'}">${fmtMoeda(t.valor)}</div>
+      </div>`).join('');
+  }
+
+  const elLanc = document.getElementById('listaLancamentosConc');
+  if(naoConcLanc.length===0){
+    elLanc.innerHTML = '<div class="empty-state">Todos os lançamentos estão conciliados.</div>';
+  }else{
+    elLanc.innerHTML = naoConcLanc.slice().sort((a,b)=>a.vencimento.localeCompare(b.vencimento)).map(l=>`
+      <div class="conc-item" onclick="tentarParear(${l.id})">
+        <div><div class="conc-item-desc">${l.descricao}</div><div class="conc-item-date">${fmtData(l.vencimento)} · ${l.unidade}</div></div>
+        <div class="conc-item-val" style="color:${l.tipo==='receber'?'var(--receita)':'var(--despesa)'}">${fmtMoeda(l.valor)}</div>
+      </div>`).join('');
+  }
+}
+function selecionarExtrato(id){
+  concSelecaoExtrato = (concSelecaoExtrato===id) ? null : id;
+  renderConciliacao();
+}
+function cancelarSelecao(){
+  concSelecaoExtrato = null;
+  renderConciliacao();
+}
+function tentarParear(lancId){
+  if(!concSelecaoExtrato){
+    showToast('Selecione primeiro uma transação do extrato à esquerda.');
+    return;
+  }
+  const trans = state.extrato.find(t=>t.id===concSelecaoExtrato);
+  const lanc = state.lancamentos.find(l=>l.id===lancId);
+  trans.conciliadoCom = lanc.id;
+  lanc.conciliadoCom = trans.id;
+  if(!lanc.dataEf) lanc.dataEf = trans.data;
+  concSelecaoExtrato = null;
+  saveData();
+  renderConciliacao();
+  renderDashboard();
+  showToast('Lançamento conciliado com o extrato.');
+}
+
+/* ============ EXPORTAÇÃO ============ */
+function initExportPeriods(){
+  const sel = document.getElementById('periodoExport');
+  const meses = new Set();
+  state.lancamentos.forEach(l=>meses.add(mesAno(l.vencimento)));
+  meses.add(hoje().slice(0,7));
+  const arr = Array.from(meses).sort().reverse();
+  const cur = sel.value;
+  sel.innerHTML = '<option value="todos">Todos os períodos</option>' + arr.map(m=>`<option value="${m}">${nomeMes(m+'-01')}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+function downloadCSV(filename, rows){
+  const csv = rows.map(r=>r.map(c=>{
+    const s = String(c==null?'':c);
+    return /[;\n"]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
+  }).join(';')).join('\n');
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function exportarContabilizacoes(){
+  const periodo = document.getElementById('periodoExport').value;
+  const tipoFiltro = document.getElementById('tipoExport').value;
+  let lista = state.lancamentos.filter(l=>{
+    if(periodo!=='todos' && mesAno(l.vencimento)!==periodo) return false;
+    if(tipoFiltro!=='todos' && l.tipo!==tipoFiltro) return false;
+    return true;
+  });
+  if(lista.length===0){ showToast('Nenhum lançamento no período selecionado.'); return; }
+  lista.sort((a,b)=>a.vencimento.localeCompare(b.vencimento));
+  const rows = [['Data','Tipo','Unidade','Categoria','Histórico','Conta Débito','Conta Crédito','Valor','Status','Conciliado']];
+  lista.forEach(l=>{
+    const debito = l.tipo==='pagar' ? (MAPA_CONTAS_PAGAR[l.categoria]||'3.2.99 Outras Despesas') : CONTA_CAIXA;
+    const credito = l.tipo==='pagar' ? CONTA_CAIXA : (MAPA_CONTAS_RECEBER[l.categoria]||'4.1.99 Outras Receitas');
+    rows.push([
+      fmtData(l.vencimento),
+      l.tipo==='pagar' ? 'Pagar' : 'Receber',
+      l.unidade, l.categoria, l.descricao,
+      debito, credito,
+      l.valor.toFixed(2).replace('.',','),
+      statusDe(l),
+      l.conciliadoCom ? 'Sim' : 'Não'
+    ]);
+  });
+  const nomeArq = `contabilizacoes_${periodo==='todos'?'todos':periodo}.csv`;
+  downloadCSV(nomeArq, rows);
+  showToast('Arquivo de contabilização baixado.');
+}
+function exportarConciliacao(){
+  if(state.lancamentos.length===0){ showToast('Nenhum lançamento cadastrado.'); return; }
+  const rows = [['Tipo','Descrição','Vencimento','Valor','Status Conciliação','Data Extrato','Descrição Extrato','Valor Extrato']];
+  state.lancamentos.forEach(l=>{
+    const t = state.extrato.find(e=>e.id===l.conciliadoCom);
+    rows.push([
+      l.tipo==='pagar'?'Pagar':'Receber', l.descricao, fmtData(l.vencimento), l.valor.toFixed(2).replace('.',','),
+      l.conciliadoCom ? 'Conciliado' : 'Pendente',
+      t ? fmtData(t.data) : '', t ? t.descricao : '', t ? t.valor.toFixed(2).replace('.',',') : ''
+    ]);
+  });
+  downloadCSV('relatorio_conciliacao.csv', rows);
+  showToast('Relatório de conciliação baixado.');
+}
+function exportarNotasFiscais(){
+  if(state.notasFiscais.length===0){ showToast('Nenhuma nota fiscal importada.'); return; }
+  const rows = [['Tipo Doc','Número','Série','Emissão','Emitente','CNPJ Emitente','Destinatário','CNPJ Destinatário','Valor','Direção','Chave/Verificação','Natureza Operação','Status']];
+  state.notasFiscais.slice().sort((a,b)=>a.dataEmissao.localeCompare(b.dataEmissao)).forEach(n=>{
+    rows.push([
+      n.tipoDoc, n.numero||'', n.serie||'', fmtData(n.dataEmissao),
+      n.emitenteNome||'', n.emitenteCNPJ||'', n.destinatarioNome||'', n.destinatarioCNPJ||'',
+      n.valor.toFixed(2).replace('.',','),
+      n.direcao==='saida'?'Saída (a receber)':n.direcao==='entrada'?'Entrada (a pagar)':'Indefinida',
+      n.chave||'', n.naturezaOperacao||'',
+      n.status==='convertido'?'Convertida em lançamento':'Pendente'
+    ]);
+  });
+  downloadCSV('notas_fiscais_importadas.csv', rows);
+  showToast('CSV de notas fiscais baixado.');
+}
+function exportarBackup(){
+  const rows = [['Tipo Registro','Tipo','Descrição','Terceiro','Unidade','Categoria','Valor','Vencimento','Data Efetivação','Status','Observação']];
+  state.lancamentos.forEach(l=>{
+    rows.push(['Lançamento', l.tipo, l.descricao, l.terceiro||'', l.unidade, l.categoria, l.valor.toFixed(2).replace('.',','), fmtData(l.vencimento), fmtData(l.dataEf), statusDe(l), l.obs||'']);
+  });
+  state.extrato.forEach(t=>{
+    rows.push(['Extrato','—', t.descricao,'','','', t.valor.toFixed(2).replace('.',','), fmtData(t.data),'', t.conciliadoCom?'Conciliado':'Pendente','']);
+  });
+  downloadCSV('backup_completo.csv', rows);
+  showToast('Backup baixado.');
+}
+
+/* ============ RENDER GERAL ============ */
+function renderAll(){
+  renderDashboard();
+  renderPagar();
+  renderReceber();
+  renderNotas();
+}
+
+loadData();
+</script>
+</body>
+</html>
